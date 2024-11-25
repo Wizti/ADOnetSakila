@@ -1,6 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-
-namespace ADONetSakila
+﻿namespace ADONetSakila
 {
     internal class Program
     {

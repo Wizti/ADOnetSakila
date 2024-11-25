@@ -1,9 +1,4 @@
 ﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ADONetSakila
 {
@@ -19,21 +14,33 @@ namespace ADONetSakila
         public List<string> GetAllFilmsByActor(string firstName, string lastName)
         {
             string query = @"
-                    SELECT 
-                    actor.first_name, 
-                    actor.last_name, 
-                    film.title
+                WITH ExactMatch AS (
+                SELECT actor.first_name, actor.last_name, film.title
                 FROM film
-                INNER JOIN film_actor ON film.film_id = film_actor.film_id
-                INNER JOIN actor ON film_actor.actor_id = actor.actor_id
-                WHERE actor.first_name = @FirstName or actor.last_name = @LastName";
+                    INNER JOIN film_actor ON film.film_id = film_actor.film_id
+                    INNER JOIN actor ON film_actor.actor_id = actor.actor_id
+                WHERE actor.first_name = @FirstName AND actor.last_name = @LastName
+                ),
+                Fallback AS (
+                SELECT actor.first_name, actor.last_name, film.title
+                FROM film
+                    INNER JOIN film_actor ON film.film_id = film_actor.film_id
+                    INNER JOIN actor ON film_actor.actor_id = actor.actor_id
+                WHERE actor.first_name = @FirstName OR actor.last_name = @LastName)
+
+                SELECT *
+                FROM ExactMatch
+                UNION ALL
+                SELECT *
+                FROM Fallback
+                WHERE NOT EXISTS (SELECT 1 FROM ExactMatch)";
 
             SqlParameter[] parameters = new[] {
                 new SqlParameter("@Firstname", firstName),
                 new SqlParameter("@LastName", lastName)
             };
 
-            var actors = new List<string>();
+            var actorFilms = new List<string>();
 
             using (var reader = _databaseService.ExecuteQuery(query, parameters))
             {
@@ -41,12 +48,12 @@ namespace ADONetSakila
                 {
                     while (reader.Read())
                     {
-                        actors.Add($"{reader["first_name"]} {reader["last_name"]} {reader["title"]}");
+                        actorFilms.Add($"{reader["first_name"]} {reader["last_name"]} - {reader["title"]}");
                     }
                 }
             }
 
-            return actors;
+            return actorFilms;
         }
 
     }

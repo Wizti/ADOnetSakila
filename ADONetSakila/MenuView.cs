@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ADONetSakila
+﻿namespace ADONetSakila
 {
     internal class MenuView
     {
@@ -16,11 +10,14 @@ namespace ADONetSakila
         }
         public void Show()
         {
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.Clear();
-            Console.WriteLine("###   Welcome to search Movie by actor   ###");
+            Console.WriteLine("###   Welcome to search Movie by actor   ###");            
             Console.WriteLine(new string('-', 40));
-            Console.WriteLine("1. Search movie by enter first or lastname.");
+            Console.WriteLine("1. Search movie by enter first and lasttname.");
             Console.WriteLine("2. Quit");
+            Console.WriteLine();
+            Console.Write("-> ");
 
             HandleInput(Console.ReadLine());                       
         }
@@ -47,27 +44,33 @@ namespace ADONetSakila
         public void SearchView()
         {
             Console.Clear();
-            Console.Write("Enter actor firstname: ");
+            Console.Write("Enter actor firstname: ");            
             var firstName = Console.ReadLine();
-            Console.Write("Enter actor lastname: ");
-            var lastName = Console.ReadLine();       
             
+            Console.Write("Enter actor lastname: ");            
+            var lastName = Console.ReadLine();            
 
             ShowSearchResult(_controller.HandleSearchMovieByActor(firstName, lastName));
         }
 
         private void ShowSearchResult(List<string> searchResult)
         {
-
-            Console.WriteLine("--- Films by Actor ---");
-            Console.WriteLine("----------------------");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("\n--- Films by Actor ---\n");
+            Console.ForegroundColor= ConsoleColor.White;
 
             foreach (var searchResultItem in searchResult)
             {
                 Console.WriteLine(searchResultItem);
+                Console.ForegroundColor= ConsoleColor.Magenta;
                 Console.WriteLine(new string('-', 40));
+                Console.ForegroundColor = ConsoleColor.White;
             }
-            Console.ReadLine();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("\n Enter for menu -> ");
+            Console.ReadLine();    
+            Show();
         }
     }
 }
